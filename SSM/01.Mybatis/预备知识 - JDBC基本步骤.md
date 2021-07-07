@@ -7,7 +7,8 @@ JDBC基本步骤如下：
 ```java
 // 1 和 3 步骤中会有异常，IDE加上try/catch就好
 
-//1、加载JDBC驱动,Diver类的实例就会加载到DriverManager中
+//1、加载JDBC驱动，不写 DriverManager.registerDriver(Class.forName(driverClass).new Instance()) 的原因是：
+//因为com.mysql.jdbc.Driver 类中有 注册驱动的静态代码块，而使用 Class.forName 会引起类的初始化，执行静态代码块，因此不用重复写。
 
 Class.forName("com.mysql.jdbc.Driver");
 
@@ -55,62 +56,41 @@ Connection conn = DriverManager.getConnection(url);
 
   //返回结果集：
 
-  while(rs.next()){
-
-​    rs.getXXX("name"); //提供了各种类型的获取方法
-
-​    rs.getXXX(1); //从左到右编号，从1开始。这种更高效
-
-  }
+	while(rs.next()){
+		rs.getXXX("name"); //提供了各种类型的获取方法
+		rs.getXXX(1); //从左到右编号，从1开始。这种更高效
+	}
 
 //6、关闭JDBC
 
-  //1、关闭记录集  
+  //1、关闭结果集
 
   //2、关闭声明  
 
   //3、关闭连接对象  
 
-  if(rs != null){  // 关闭记录集  
+	if(rs != null){  // 关闭结果集
+        try{  
+            rs.close() ;  
+        }catch(SQLException e){  
+            e.printStackTrace() ;  
+        }  
+	}  
 
-​    try{  
+	if(stmt != null){  // 关闭声明  
+		try{  
+			stmt.close() ;  
+		}catch(SQLException e){  
+			e.printStackTrace() ;  
+		}  
+	}  
 
-​      rs.close() ;  
-
-​    }catch(SQLException e){  
-
-​    e.printStackTrace() ;  
-
-​    }  
-
-  }  
-
-  if(stmt != null){  // 关闭声明  
-
-​    try{  
-
-​      stmt.close() ;  
-
-​    }catch(SQLException e){  
-
-​      e.printStackTrace() ;  
-
-​    }  
-
-  }  
-
-  if(conn != null){ // 关闭连接对象  
-
-​    try{  
-
-​      conn.close() ;  
-
-​    }catch(SQLException e){  
-
-​      e.printStackTrace() ;  
-
-​    }  
-
-  }
+	if(conn != null){ // 关闭连接对象  
+		try{  
+			conn.close() ;  
+		}catch(SQLException e){  
+			e.printStackTrace() ;  
+		}  
+	}
 ```
 
